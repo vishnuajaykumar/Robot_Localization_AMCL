@@ -1,90 +1,57 @@
+# 🗺️ AMCL Localization Project
 
-# 🚀 Ball Chaser Robot - Project
+Welcome to the AMCL Localization Project, where robots localize themselves in a pre-defined map using Adaptive Monte Carlo Localization (AMCL).
 
-Welcome to theproject! This is where robots meet fun, chasing a white ball in a Gazebo simulation using ROS 1. 
+# 📦 Project Overview
 
----
+This project demonstrates how to localize a robot in a known environment using sensor data and odometry with the AMCL package. The robot is simulated in Gazebo and uses sensors for localization.
 
-## 📦 Project Overview
+# 🛠️ Prerequisites
 
-This project consists of two key packages:
+Required Tools
 
-- **`my_robot`**: Contains the robot's URDF, sensors, and Gazebo world setup.
-- **`ball_chaser`**: Includes the br
+ROS 1 
+Gazebo (default with ROS Noetic)
 
-https://github.com/user-attachments/assets/3a934e7a-ba90-43d0-8ad8-65d647a2ac92
+catkin tools: Install with:
+sudo apt install python3-catkin-tools
 
-ains of the operation—control nodes for chasing the ball.
+Additional ROS packages:
+sudo apt install ros-noetic-map-server \
+                 ros-noetic-amcl \
+                 ros-noetic-move-base \
+                 ros-noetic-rviz \
+                 ros-noetic-gazebo-ros
 
----
+# 🏗️ How to Clone and Run
 
-## 🛠️ Prerequisites
+git clone https://github.com/vishnuajaykumar/Robot_Localization_AMCL.git
+cd amcl_robot_project
 
-Make sure you have the following:
+# Build the Workspace
 
-- **ROS 1** (tested on Noetic 🐢)
-- **Gazebo** (comes with ROS Noetic by default)
-- **catkin tools**: Install it with:
-  ```bash
-
-
-
-
-  sudo apt install python3-catkin-tools
-  ```
-- Additional ROS packages:
-  ```bash
-  sudo apt install ros-noetic-joint-state-publisher \
-                   ros-noetic-joint-state-publisher-gui \
-                   ros-noetic-xacro \
-                   ros-noetic-gazebo-ros \
-                   ros-noetic-rviz
-  ```
-
----
-
-## 🏗️ How to Clone and Run
-
-### Clone the Repository
-```bash
-git clone https://github.com/vishnuajaykumar/ball_chaser_robot.git
-cd ball_chaser_robot
-```
-
-### Build the Workspace
-```bash
 catkin_make
 source devel/setup.bash
-```
 
-### Launch the Simulation
-```bash
-roslaunch my_robot world.launch
-```
+# Launch the localization stack with the AMCL node:
 
-### Launch the Ball Chaser Nodes
-```bash
-roslaunch ball_chaser ball_chaser.launch
-```
-
----
+roslaunch ball_chaser amcl_navigation.launch
 
 ## 🗂️ Project Directory Structure
 
 ```
-ball_chaser_robot/                   
+bamcl_robot_project/                   
 ├── src/                      
 │   ├── my_robot/             
 │   │   ├── launch/             # Launch files
-│   │   ├── meshes/             # Sensor and model meshes
 │   │   ├── urdf/               # Robot description files
 │   │   ├── world/              # Gazebo world files
 │   │   ├── CMakeLists.txt      # Build configuration
 │   │   ├── package.xml         # ROS package metadata
 │   ├── ball_chaser/          
-│   │   ├── launch/             # Launch files
-│   │   ├── src/                # C++ source files
-│   │   ├── srv/                # Service definitions
+│   │   ├── launch/             # AMCL launch files
+│   │   ├── config/             # Configuration files (costmaps, AMCL parameters)
+│   │   ├── maps/               # Generated maps
 │   │   ├── CMakeLists.txt      # Build configuration
 │   │   ├── package.xml         # ROS package metadata
 ├── build/                      # Build artifacts (do not commit)
@@ -93,55 +60,18 @@ ball_chaser_robot/
 
 ---
 
-## 🎮 How It Works
+# 🧠 How It Works
 
-### 🤖 Simulation in Gazebo
-- The **`my_robot`** package defines the robot’s URDF with wheels, a camera, and LIDAR.
-- The simulation includes a Gazebo world (`BallChaser.world`) with a white ball waiting to be chased!
+🗺️ Map Server
 
-### ⚡ Ball Chasing Behavior
-1. **Image Processing**:  
-   The `process_image` node processes the camera feed to spot the white ball.  
-2. **Decision Making**:  
-   It determines the ball’s position (left, center, or right) and sends movement commands accordingly.  
-3. **Motion Control**:  
-   The `drive_bot` node handles wheel movement to chase that ball like there’s no tomorrow.
+The Map Server node loads a pre-defined map and provides it for localization.
+For Defining yourown custom Map : Use this package 
+git clone https://github.com/udacity/pgm_map_creator.git
 
-### 🧠 Nodes Overview
-- **`drive_bot.cpp`**: Sends wheel commands to make the robot move.  
-- **`process_image.cpp`**: Analyzes the camera feed to find the ball and trigger movement commands.
+# 🧠 AMCL Localization
 
----
+Adaptive Monte Carlo Localization uses:
 
-## 🛠️ Troubleshooting
-
-- **Test the `/ball_chaser/command_robot` service**:  
-  Use the following command to move the robot forward:
-  ```bash
-  rosservice call /ball_chaser/command_robot "linear_x: 0.5 angular_z: 0.0"
-  ```
-
-- **View the Camera Feed**:  
-  Open RViz and visualize the `/camera/rgb/image_raw` topic:
-  ```bash
-  rosrun rviz rviz
-  ```
-  Add an **"Image" display** and set the topic to `/camera/rgb/image_raw`.
-
----
-
-## 🛑 Known Issues
-
-### 🚗 Robot Not Moving?
-- Double-check that the `/camera/rgb/image_raw` topic matches your Gazebo camera feed.
-- Ensure the `process_image` and `drive_bot` nodes are running.
-
-### 🚀 Launch Errors?
-- Confirm that the paths in your launch files align with the workspace structure.
-
----
-
-## 🤝 Contributing
-
-Have ideas for improvements? Found a bug? 🐞  
-Contributions are always welcome—submit an issue or a pull request and join the fun!
+Laser scan data to estimate the robot’s position relative to the map.
+Odometry to refine the pose estimate.
+Dynamically adjusts the number of particles.
